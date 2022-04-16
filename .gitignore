@@ -7,13 +7,21 @@ META-INF/**
 target/**
 **/.settings/**
 Servers/**
-node_modules/**
-.expo/**
-.expo-shared/**
-.vscode/**
+**/node_modules
+**/.expo/**
+**/.expo-shared/**
+**/.vscode/**
+**/android
+**/windows
+**/ios
+**/__tests__
+**/Images.xcassets
 
 # Log file
 *.log
+
+# File types
+*.storyboard
 
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml

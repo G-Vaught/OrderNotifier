@@ -1,0 +1,27 @@
+#Data structure to store
+Order Entry:
+{
+    "_id": "1",
+    "user_id": "hash from device id? or some other unique id",
+    "status": "PENDING",
+    "creation_date": "now",
+    "updated_date": "now",
+    "items": [
+        "item": {
+            "item_id": "1",
+            "status": "COMPLETE"
+        }
+        "item": {
+            "item_id": "2",
+            "status": "PENDING"
+        }
+    ]
+}
+
+Menu Item:
+{
+    "_id": "1",
+    "name": "Waffles",
+    "price": 6.99,
+    "inStock": true
+}
