@@ -4,6 +4,9 @@ const app = express();
 const { url } = require('inspector');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { URL } = require("url");
+const { PassThrough } = require('stream');
+const serverUtils = require('./serverUtils');
+
 
 const port = 5000
 const hostname = "127.0.0.1";
@@ -30,31 +33,51 @@ app.get("/", (req, res) => {
 app.get("/menuItems", (req, res) => {
     getMenuItems()
         .then((data) => {
-            res.statusCode = 200;
-            res.write(JSON.stringify(data));
+            console.log(data);
+            serverUtils.setSuccess(res, data);
             res.end();
         })
         .catch((err) => {
             console.log("error: ", err)
-            res.statusCode = 500;
-            res.write("An error occured: ", err);
-            res.end();
+            serverUtils.setError(res, null, "An error occurred fetching menu items").end();
         });
 });
 
 app.get("/orders", (req, res) => {
     getAllOrders()
         .then((data) => {
-            res.statusCode = 200;
-            res.write(JSON.stringify(data));
-            res.end();
+            serverUtils.setSuccess(res, data).end();
         })
         .catch((err) => {
             console.log("error: ", err)
-            res.statusCode = 500;
-            res.write("An error occured: ", err);
-            res.end();
+            serverUtils.setError(res, null, "An error occurred fetching orders").end();
         });
+});
+
+app.post("/orders/addOrder", (req, res) => {
+    console.log("Post req params: ", req.body);
+
+    addOrder(JSON.parse(req.body))
+        .then(() => {
+            serverUtils.setSuccess(res, null, "Order added.").end();
+        })
+        .catch(err => {
+            serverUtils.setError(res, null, "Error adding order.").end();
+        })
+})
+
+app.post("/orders/getUserOrder", (req, res) => {
+    console.log("Post req params: ", req.body);
+
+    getOrderById(req.body.name)
+        .then(order => {
+            serverUtils.setSuccess(res, order).end();
+        })
+        .catch(err => {
+            console.log("getOrderById error: ", err);
+            serverUtils.setError(res, null, "Error getting user order");
+        })
+
 });
 
 app.listen(port, hostname, () => {
@@ -64,7 +87,7 @@ app.listen(port, hostname, () => {
 async function getAllOrders() {
     console.log("Retrieving orders");
     try {
-        return await mongoDb.db(dbName).collection(orderCollection).find().sort({ "status": { $meta: "PENDING" }, "creation_date": 1 }).toArray();
+        return await mongoDb.db(dbName).collection(orderCollection).find().toArray();
     } catch (err) {
         console.error("Error getAllOrders", err);
     }
@@ -89,7 +112,7 @@ function getCompletedOrders() {
 
 function addOrder(order) {
     try {
-        await mongoDb.db(dbName).collection(orderCollection).insertOne(order)
+        mongoDb.db(dbName).collection(orderCollection).insertOne(order)
             .then(result => {
                 console.log("Successfully added order: ", result);
                 return true;
@@ -104,6 +127,14 @@ function addOrder(order) {
 
 function updateOrder(order) {
 
+}
+
+function getOrderById(userId) {
+    try {
+        return mongoDb.db(dbName).collection(orderCollection).find({ user_id: userId }).toArray();
+    } catch (err) {
+        return null;
+    }
 }
 
 console.log("Server started");
