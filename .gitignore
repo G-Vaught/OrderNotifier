@@ -8,14 +8,14 @@ target/**
 **/.settings/**
 Servers/**
 **/node_modules
-**/.expo/**
-**/.expo-shared/**
-**/.vscode/**
-**/android
+**/.expo
+**/.expo-shared
+**/.vscode
 **/windows
 **/ios
 **/__tests__
 **/Images.xcassets
+/client/desktop/orderNotifyDesktop/android
 
 # Log file
 *.log
