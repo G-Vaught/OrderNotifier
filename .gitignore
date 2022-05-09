@@ -3,20 +3,14 @@
 *.classpath
 
 #Folders
-META-INF/**
-target/**
-**/.settings/**
-Servers/**
-**/node_modules
-**/.expo
-**/.expo-shared
-**/.vscode
-**/windows
-**/ios
-**/__tests__
-**/Images.xcassets
-/client/desktop/orderNotifyDesktop/android
-
+node_modules
+.expo
+.expo-shared
+.vscode
+__tests__
+**/client/desktop/orderNotifyDesktop/android
+**/client/desktop/orderNotifyDesktop/ios
+**/client/desktop/orderNotifyDesktop/windows
 # Log file
 *.log
 

@@ -6,7 +6,9 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const { URL } = require("url");
 const { PassThrough } = require('stream');
 const serverUtils = require('./serverUtils');
-
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 const port = 5000
 const hostname = "127.0.0.1";
@@ -15,9 +17,13 @@ const menuItemsCollection = "menuItems";
 const orderCollection = "orders";
 const uri = "mongodb+srv://order-server:0h92hrjtmmGf6A8R@cluster0.etobf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const mongoDb = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const { ObjectId } = require('mongodb');
 
 app.use(express.urlencoded());
 app.use(express.json());
+app.use(cors({
+    origin: '*'
+}));
 mongoDb.connect();
 
 process.on('exit', (code) => {
@@ -33,7 +39,6 @@ app.get("/", (req, res) => {
 app.get("/menuItems", (req, res) => {
     getMenuItems()
         .then((data) => {
-            console.log(data);
             serverUtils.setSuccess(res, data);
             res.end();
         })
@@ -42,6 +47,38 @@ app.get("/menuItems", (req, res) => {
             serverUtils.setError(res, null, "An error occurred fetching menu items").end();
         });
 });
+
+app.post("/menuItems/add", (req, res) => {
+    console.log(req.body.name);
+    if (!req.body) {
+        serverUtils.setError(res, null, "An error occurred adding menu item").end();
+    }
+    let item = {
+        name: req.body.name,
+        price: req.body.price,
+        category: req.body.category,
+        inStock: true
+    }
+    let isSuccess = addMenuItem(item);
+    if (isSuccess) {
+        serverUtils.setSuccess(res, getMenuItems()).end();
+    } else {
+        serverUtils.setError(res, null, "An error occurred adding menu item").end();
+    }
+});
+
+app.post("/menuItems/delete", (req, res) => {
+    if (!req.body.id) {
+        serverUtils.setError(res, null, "An error occurred deleting menu item").end();
+    }
+
+    let isSuccess = deleteMenuItem(req.body.id);
+    if (isSuccess) {
+        serverUtils.setSuccess(res).end();
+    } else {
+        serverUtils.setError(res, null, "An error occurred deleting menu item").end();
+    }
+})
 
 app.get("/orders", (req, res) => {
     getAllOrders()
@@ -69,7 +106,7 @@ app.post("/orders/addOrder", (req, res) => {
 app.post("/orders/getUserOrder", (req, res) => {
     console.log("Post req params: ", req.body);
 
-    getOrderById(req.body.name)
+    getOrderById(req.body.userId)
         .then(order => {
             serverUtils.setSuccess(res, order).end();
         })
@@ -102,6 +139,30 @@ async function getMenuItems() {
     }
 }
 
+async function addMenuItem(item) {
+    console.log("Adding item: ", item);
+    try {
+        await mongoDb.db(dbName).collection(menuItemsCollection).insertOne(item).catch(err => console.error(err));
+    } catch (err) {
+        console.error("Error inserting item: ", item, " Error: ", err);
+        return false;
+    }
+    return true;
+}
+
+async function deleteMenuItem(id) {
+    console.log("Deleting item: ", id);
+    try {
+        await mongoDb.db(dbName).collection(menuItemsCollection).deleteOne({
+            "_id": ObjectId(id)
+        })
+    } catch (err) {
+        console.error("Error deleting item: ", id, " Error: ", err);
+        return false;
+    }
+    return true;
+}
+
 function getOutstandingOrders() {
 
 }
@@ -129,9 +190,11 @@ function updateOrder(order) {
 
 }
 
-function getOrderById(userId) {
+async function getOrderById(userId) {
     try {
-        return mongoDb.db(dbName).collection(orderCollection).find({ user_id: userId }).toArray();
+        const orders = await mongoDb.db(dbName).collection(orderCollection).find({ user_id: userId }).toArray();
+        console.log(orders);
+        return orders;
     } catch (err) {
         return null;
     }

@@ -9,11 +9,13 @@ Order Entry:
     "items": [
         "item": {
             "item_id": "1",
-            "status": "COMPLETE"
+            "status": "COMPLETE",
+            "hasNotified": true,
         }
         "item": {
             "item_id": "2",
-            "status": "PENDING"
+            "status": "PENDING",
+            "hasNotified": false
         }
     ]
 }
@@ -22,6 +24,7 @@ Menu Item:
 {
     "_id": "1",
     "name": "Waffles",
+    "category": "Food",
     "price": 6.99,
     "inStock": true
 }
