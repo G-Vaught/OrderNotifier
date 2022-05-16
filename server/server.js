@@ -15,7 +15,7 @@ const hostname = "127.0.0.1";
 const dbName = "testOrders";
 const menuItemsCollection = "menuItems";
 const orderCollection = "orders";
-const uri = "mongodb+srv://order-server:0h92hrjtmmGf6A8R@cluster0.etobf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = "";
 const mongoDb = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 const { ObjectId } = require('mongodb');
 
@@ -94,7 +94,7 @@ app.get("/orders", (req, res) => {
 app.post("/orders/addOrder", (req, res) => {
     console.log("Post req params: ", req.body);
 
-    addOrder(JSON.parse(req.body))
+    addOrder(req.body)
         .then(() => {
             serverUtils.setSuccess(res, null, "Order added.").end();
         })
@@ -163,26 +163,37 @@ async function deleteMenuItem(id) {
     return true;
 }
 
-function getOutstandingOrders() {
+async function getOutstandingOrders() {
 
 }
 
-function getCompletedOrders() {
+async function getCompletedOrders() {
 
 }
 
-function addOrder(order) {
+async function addOrder(order) {
+    const orderItem = {
+        user_id: order.user_id,
+        items: [
+            order.items.map(item => {
+                return {
+                    item_id: item.item_id,
+                    status: "PENDING",
+                    hasNotified: false
+                }
+            })
+        ],
+        status: "PENDING",
+        creation_date: new Date(),
+        updated_date: new Date()
+    }
+    console.log("Adding new order: ", orderItem);
     try {
-        mongoDb.db(dbName).collection(orderCollection).insertOne(order)
-            .then(result => {
-                console.log("Successfully added order: ", result);
-                return true;
-            }, err => {
-                console.log("Error adding order: ", result);
-                return false
-            });
+        await mongoDb.db(dbName).collection(orderCollection).insertOne(orderItem);
+        return true;
     } catch (err) {
-
+        console.error("Error adding new order: ", err);
+        return false;
     }
 }
 
