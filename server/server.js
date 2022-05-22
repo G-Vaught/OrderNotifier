@@ -15,7 +15,7 @@ const hostname = "127.0.0.1";
 const dbName = "testOrders";
 const menuItemsCollection = "menuItems";
 const orderCollection = "orders";
-const uri = "";
+const uri = "mongodb+srv://order-server:0h92hrjtmmGf6A8R@cluster0.etobf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 const mongoDb = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 const { ObjectId } = require('mongodb');
 
@@ -93,14 +93,12 @@ app.get("/orders", (req, res) => {
 
 app.post("/orders/addOrder", (req, res) => {
     console.log("Post req params: ", req.body);
-
-    addOrder(req.body)
-        .then(() => {
-            serverUtils.setSuccess(res, null, "Order added.").end();
-        })
-        .catch(err => {
-            serverUtils.setError(res, null, "Error adding order.").end();
-        })
+    let isSuccess = addOrder(req.body);
+    if (isSuccess) {
+        serverUtils.setSuccess(res, null, "Order added.").end();
+    } else {
+        serverUtils.setError(res, null, "Error adding order.").end();
+    }
 })
 
 app.post("/orders/getUserOrder", (req, res) => {
@@ -174,15 +172,13 @@ async function getCompletedOrders() {
 async function addOrder(order) {
     const orderItem = {
         user_id: order.user_id,
-        items: [
-            order.items.map(item => {
-                return {
-                    item_id: item.item_id,
-                    status: "PENDING",
-                    hasNotified: false
-                }
-            })
-        ],
+        items: order.items.map(item => {
+            return {
+                item_id: ObjectId(item.item_id),
+                status: "PENDING",
+                hasNotified: false
+            }
+        }),
         status: "PENDING",
         creation_date: new Date(),
         updated_date: new Date()

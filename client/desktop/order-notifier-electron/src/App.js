@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import EditMenu from './pages/EditMenu'
 import Menu from './pages/Menu'

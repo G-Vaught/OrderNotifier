@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,12 +13,8 @@ export default function Navbar() {
             </div>
             <div className='navbar-menu'>
                 <div className='navbar-start'>
-                    <div className='navbar-item'>
-                        <button className='button is-ghost' onClick={() => { navigate("/") }}>Menu</button>
-                    </div>
-                    <div className='navbar-item'>
-                        <button className='button is-ghost' onClick={() => { navigate("/editMenu") }}>Edit Menu Items</button>
-                    </div>
+                    <a className='navbar-item' onClick={() => { navigate("/") }}>Menu</a>
+                    <a className='navbar-item' onClick={() => { navigate("/editMenu") }}>Edit Menu Items</a>
                 </div>
             </div>
         </nav>

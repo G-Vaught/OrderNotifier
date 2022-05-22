@@ -25,7 +25,11 @@ function MenuItems() {
     }
 
     return (
-        <div className='columns  is-multiline'>{display()}</div>
+        <div>
+            <div className="has-text-centered is-size-4">Menu Items</div>
+            <hr className='mb-5 mt-1'></hr>
+            <div className='columns is-multiline'>{display()}</div>
+        </div>
     )
 }
 
