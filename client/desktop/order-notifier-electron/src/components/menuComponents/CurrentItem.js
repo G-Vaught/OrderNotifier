@@ -26,7 +26,7 @@ function CurrentItem(props) {
     }
 
     return (
-        <tr>
+        <tr key={item.id}>
             <td>{item.name}</td>
             <td className='has-text-centered'>{item.quantity}</td>
             <td>
